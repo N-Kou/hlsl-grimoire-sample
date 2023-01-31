@@ -18,10 +18,15 @@ VSOutput VSMain(VSInput In)
     VSOutput vsOut = (VSOutput)0;
 
     // step-1 入力された頂点座標を出力データに代入する
+    vsOut.pos = In.pos;
 
     // step-2 入力された頂点座標を2倍に拡大する
+    //vsOut.pos.x *= 1.0f;
+    //vsOut.pos.y *= 1.0f;
 
     // step-3 入力されたX座標を1.5倍、Y座標を0.5倍にして出力
+    //vsOut.pos.x *= 1.0f;
+    //vsOut.pos.y *= 1.0f;
 
     return vsOut;
 }
@@ -29,5 +34,5 @@ VSOutput VSMain(VSInput In)
 // ピクセルシェーダー
 float4 PSMain(VSOutput vsOut) : SV_Target0
 {
-    return float4(1.0f, 0.0f, 0.0f, 1.0f);
+    return float4(1.0f, 1.0f, 0.0f, 1.0f);
 }

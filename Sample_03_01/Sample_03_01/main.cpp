@@ -1,6 +1,8 @@
 ﻿#include "stdafx.h"
 #include "system/system.h"
 #include "TrianglePolygon.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 //関数宣言
 void InitRootSignature(RootSignature& rs);
@@ -26,14 +28,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     triangle.Init(rootSignature);
 
     // step-1 定数バッファを作成
-
+    ConstantBuffer cb;
+    cb.Init(sizeof(Matrix));
     // step-2 ディスクリプタヒープを作成
-
+    DescriptorHeap ds;
+    ds.RegistConstantBuffer(0, cb);
+    ds.Commit();
     //////////////////////////////////////
     // 初期化を行うコードを書くのはここまで！！！
     //////////////////////////////////////
     auto& renderContext = g_graphicsEngine->GetRenderContext();
-
+    int s = 0;
     // ここからゲームループ
     while (DispatchWindowMessage())
     {
@@ -48,11 +53,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
         renderContext.SetRootSignature(rootSignature);
 
         // step-3 ワールド行列を作成
-
+        Matrix mWorld0;
+        Matrix mWorld1;
+        float x = sin((s++ % 10000) / 1000.0f * 1 * M_PI);
+        float y = cos((s++ % 10000) / 1000.0f * 1 * M_PI);
+        float z = tan((s++ % 10000) / 1000.0f * 1 * M_PI);
+        mWorld1.MakeTranslation(x, y, 0.0f);
+        mWorld0.MakeRotationZ(z);
+        mWorld0.Multiply(mWorld0, mWorld1);
         // step-4 ワールド行列をグラフィックメモリにコピー
-
+        cb.CopyToVRAM(mWorld0);
         // step-5 ディスクリプタヒープを設定
-
+        renderContext.SetDescriptorHeap(ds);
         //三角形をドロー
         triangle.Draw(renderContext);
 
@@ -66,7 +78,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 }
 
 //ルートシグネチャの初期化
-void InitRootSignature( RootSignature& rs )
+void InitRootSignature(RootSignature& rs)
 {
     rs.Init(D3D12_FILTER_MIN_MAG_MIP_LINEAR,
         D3D12_TEXTURE_ADDRESS_MODE_WRAP,
